@@ -1,7 +1,16 @@
 // jshint esversion: 9
+class Product {
+  title = "DEFAULT";
+  imageUrl;
+  description;
+  price;
+}
+
+console.log(new Product());
 
 const productList = {
   products: [
+    //  New in the end is a keyword Javascript understands that together with such a function execution which is based on a class, it's not a real function but still, should basically create a new object. this returns a new object which has this structure.
     {
       title: "A Pillow",
       imageUrl:
@@ -13,7 +22,7 @@ const productList = {
       title: "A Carpet",
       imageUrl:
         "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg",
-      description: 'A carpet which you might like - or not.',
+      description: "A carpet which you might like - or not.",
       price: 89.99,
     },
   ],
