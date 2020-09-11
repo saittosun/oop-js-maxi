@@ -1,4 +1,5 @@
 // jshint esversion: 9
+
 const productList = {
   products: [
     {
