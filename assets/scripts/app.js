@@ -17,7 +17,20 @@ class Product {
   }
 }
 
-// console.log(new Product());
+class ShoppingCart {
+  items = [];
+
+  render() {
+    const cartEl = document.createElement("section");
+    cartEl.innerHTML = `
+      <h2>Total: \$${0}</h2>
+      <button>Order Now!</button>
+    `;
+    cartEl.className = "cart";
+    // I'll just return cart el here in the render method so that wherever we create that shopping cart, we can append it to the DOM.
+    return cartEl;
+  }
+}
 
 class ProductItem {
   constructor(product) {
@@ -25,7 +38,7 @@ class ProductItem {
     this.product = product;
   }
 
-  addToCard() {
+  addToCart() {
     console.log("clicked");
     console.log(this.product);
   }
@@ -45,9 +58,9 @@ class ProductItem {
       </div>
     `;
     // We only have one button in there and therefore this is the button we get access to. Now please note, since I execute this inside of the render method of this class, this always applies to this snippet which is created for this concrete instance which is later created on that class. So the fact that we'll create multiple products and therefore have multiple buttons on the screen does not cause a problem here because when this code runs here, this entire code, we're only looking at a single product because we're in a single class which is responsible for creating a single product. So we will run this code on this snippet which only holds one button and therefore we get access to exactly that button for this product.
-    const addCardButton = prodEl.querySelector("button");
-    // We execute add to cart whenever the button is clicked, we assign the add to cart method of this object, of this class to this button or to this event listener. Now as you learned in that object module, Javascript then binds this to the source of that event, so to that button and not to your your class or the object where this effectively runs on later. The solution or one possible solution is to use bind here and bind this, so that means that we bind this inside of add to cart, so what this refers to instead of this method to the same thing this refers to in this place here and this here in this code snippet refers to the entire object, so to this product item object assuming that we call render on an instance of this object, 
-    addCardButton.addEventListener("click", this.addToCard.bind(this));
+    const addCartButton = prodEl.querySelector("button");
+    // We execute add to cart whenever the button is clicked, we assign the add to cart method of this object, of this class to this button or to this event listener. Now as you learned in that object module, Javascript then binds this to the source of that event, so to that button and not to your your class or the object where this effectively runs on later. The solution or one possible solution is to use bind here and bind this, so that means that we bind this inside of add to cart, so what this refers to instead of this method to the same thing this refers to in this place here and this here in this code snippet refers to the entire object, so to this product item object assuming that we call render on an instance of this object,
+    addCartButton.addEventListener("click", this.addToCart.bind(this));
     return prodEl;
   }
 }
@@ -73,7 +86,6 @@ class ProductList {
   constructor() {}
 
   render() {
-    const renderHook = document.getElementById("app");
     const prodList = document.createElement("ul");
     prodList.className = "product-list";
     for (const prod of this.products) {
@@ -82,9 +94,22 @@ class ProductList {
       const prodEl = productItem.render();
       prodList.append(prodEl);
     }
-    renderHook.append(prodList);
+    return prodList;
   }
 }
 
-const productList = new ProductList();
-productList.render();
+class Shop {
+  render() {
+    const renderHook = document.getElementById("app");
+
+    const cart = new ShoppingCart();
+    const cartEl = cart.render();
+    const productList = new ProductList();
+    const prodListEl = productList.render();
+    renderHook.append(cartEl);
+    renderHook.append(prodListEl);
+  }
+}
+
+const shop = new Shop();
+shop.render();
