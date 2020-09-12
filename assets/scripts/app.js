@@ -24,6 +24,12 @@ class ProductItem {
     // just to re-iterate what we learned: "this.product = product" adds a new 'product' property to the eventually created objects.
     this.product = product;
   }
+
+  addToCard() {
+    console.log("clicked");
+    console.log(this.product);
+  }
+
   render() {
     const prodEl = document.createElement("li");
     prodEl.className = "product-item";
@@ -38,6 +44,10 @@ class ProductItem {
         </div>
       </div>
     `;
+    // We only have one button in there and therefore this is the button we get access to. Now please note, since I execute this inside of the render method of this class, this always applies to this snippet which is created for this concrete instance which is later created on that class. So the fact that we'll create multiple products and therefore have multiple buttons on the screen does not cause a problem here because when this code runs here, this entire code, we're only looking at a single product because we're in a single class which is responsible for creating a single product. So we will run this code on this snippet which only holds one button and therefore we get access to exactly that button for this product.
+    const addCardButton = prodEl.querySelector("button");
+    // We execute add to cart whenever the button is clicked, we assign the add to cart method of this object, of this class to this button or to this event listener. Now as you learned in that object module, Javascript then binds this to the source of that event, so to that button and not to your your class or the object where this effectively runs on later. The solution or one possible solution is to use bind here and bind this, so that means that we bind this inside of add to cart, so what this refers to instead of this method to the same thing this refers to in this place here and this here in this code snippet refers to the entire object, so to this product item object assuming that we call render on an instance of this object, 
+    addCardButton.addEventListener("click", this.addToCard.bind(this));
     return prodEl;
   }
 }
