@@ -20,9 +20,26 @@ class Product {
 class ShoppingCart {
   items = [];
 
+  //  I expect value to be an array of cart items, so I override the existing array with a new one.
+  set cartItems(value) {
+    this.items = value;
+    // so that when ever we set new cart items, I actually recalculate the total amount and update the HTML code,
+    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount}</h2>`;
+
+  }
+
+  get totalAmount() {
+    const sum = this.items.reduce((prevValue, curItem) => {
+      return prevValue + curItem.price;
+    }, 0);
+    return sum;
+  }
+
   addProduct(product) {
-    this.items.push(product);
-    this.totalOutput.innerHTML = `<h2>Total: \$${1}</h2>`;
+    const updatedItems = [...this.items]
+    updatedItems.push(product);
+    // this will trigger the setter, pass updated items as a value to it and then therefore update the code
+    this.cartItems = updatedItems;
   }
 
   render() {
@@ -120,6 +137,10 @@ class Shop {
 
 // we kind of use this app class and the static method as a proxy because and that's the advantage and the whole idea of using these static methods, since we always operate on the class and not on instances, we don't work on different objects which we would do if we would not use static and instead create different apps in different places of the app but instead the app I'm using here to init my app, this class is the same I can now call from inside product item. So here in add to cart, we can get rid of that instead just call app add product to cart, this product, referring to the product stored in this product item. So here I am utilizing static methods and the fact that we're not working on objects based on classes but on the class itself to share some data, share the cart instance for example.
 class App {
+  // bunu niye ekledi anlamadim!!
+  static cart;
+
+  // static methods and static properties are always a good idea if you want to share some functionality across different parts of your application or like in this case, if you want to share some data or use this as kind of a communication interface you could say.
   static init() {
     const shop = new Shop();
     shop.render();
