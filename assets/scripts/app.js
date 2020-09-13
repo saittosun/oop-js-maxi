@@ -84,16 +84,23 @@ class ShoppingCart extends Component {
     this.cartItems = updatedItems;
   }
 
+  orderProducts() {
+    console.log("ordering...");
+    console.log(this.items);
+  }
+
   render() {
     const cartEl = this.createRootElement("section", "cart");
     cartEl.innerHTML = `
       <h2>Total: \$${0}</h2>
       <button>Order Now!</button>
     `;
-    cartEl.className = "cart";
+    const orderButton = cartEl.querySelector("button");
+    orderButton.addEventListener("click", () => this.orderProducts());
+    // cartEl.className = "cart";// bunu da niye command yapmadim ben yahu!!
     this.totalOutput = cartEl.querySelector("h2");
     // I'll just return cart el here in the render method so that wherever we create that shopping cart, we can append it to the DOM.
-    return cartEl;
+    // return cartEl;// bunu ben command yapmayi unutmusum galiba sanirsam
   }
 }
 
