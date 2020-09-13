@@ -17,15 +17,45 @@ class Product {
   }
 }
 
-class ShoppingCart {
+class ElementAttribute {
+  constructor(attrName, attrValue) {
+    this.name = attrName;
+    this.value = attrValue;
+  }
+}
+
+class Component {
+  constructor(renderHookId) {
+    // if your subclass, so the class which extends another class, does not have a constructor, the constructor of the parent class is automatically called.
+    console.log("called");
+    this.hookId = renderHookId;
+  }
+  createRootElement(tag, cssClasses, attributes) {
+    const rootElement = document.createElement(tag);
+    if (cssClasses) {
+      rootElement.className = cssClasses;
+    }
+    if (attributes && attributes.length > 0) {
+      for (const attr of attributes) {
+        rootElement.setAttribute(attr.name, attr.value);
+      }
+    }
+    document.getElementById(this.hookId).append(rootElement);
+    return rootElement;
+  }
+}
+
+// you can only herit one class. It means that shopping cart now still creates normal objects if we instantiate it but all these objects don't just have all the logic we defined in here but also all the logic we defined in the base class(component),
+class ShoppingCart extends Component {
   items = [];
 
   //  I expect value to be an array of cart items, so I override the existing array with a new one.
   set cartItems(value) {
     this.items = value;
     // so that when ever we set new cart items, I actually recalculate the total amount and update the HTML code,
-    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount}</h2>`;
-
+    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(
+      2
+    )}</h2>`;
   }
 
   get totalAmount() {
@@ -35,15 +65,20 @@ class ShoppingCart {
     return sum;
   }
 
+  // Now if you add a constructor, maybe below the getters and setters, to your subclass, so to the class which is extending, then this constructor will be called and the parent class constructor will not be called, so also not what I want. What I in the end want here is I want to call this constructor and from there, call the parent constructor, so the constructor of the parent class which is the class we're extending from and we can do this with another special keyword, the super keyword, execute it like a function and this will call the constructor in the parent class and you want to do this in your own constructors if you're a parent class also has a constructor that should be executed, which typically is the case if it has a constructor. Now one important note about super - when you add super to your constructor, make sure you're not relying on any field in that super constructor method, that will become important later and also if you plan on adding properties in your constructor with this something equals something else, you have to do that after you called super and you always have to call super, so the constructor of your parent class, of your base class first before you start using this inside of your subclass constructor.
+  constructor(renderHookId) {
+    super(renderHookId);
+  }
+
   addProduct(product) {
-    const updatedItems = [...this.items]
+    const updatedItems = [...this.items];
     updatedItems.push(product);
     // this will trigger the setter, pass updated items as a value to it and then therefore update the code
     this.cartItems = updatedItems;
   }
 
   render() {
-    const cartEl = document.createElement("section");
+    const cartEl = this.createRootElement("section", "cart");
     cartEl.innerHTML = `
       <h2>Total: \$${0}</h2>
       <button>Order Now!</button>
@@ -126,11 +161,10 @@ class Shop {
   render() {
     const renderHook = document.getElementById("app");
 
-    this.cart = new ShoppingCart();
-    const cartEl = this.cart.render();
+    this.cart = new ShoppingCart('app');
+    this.cart.render();
     const productList = new ProductList();
     const prodListEl = productList.render();
-    renderHook.append(cartEl);
     renderHook.append(prodListEl);
   }
 }
