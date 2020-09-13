@@ -20,6 +20,11 @@ class Product {
 class ShoppingCart {
   items = [];
 
+  addProduct(product) {
+    this.items.push(product);
+    this.totalOutput.innerHTML = `<h2>Total: \$${1}</h2>`;
+  }
+
   render() {
     const cartEl = document.createElement("section");
     cartEl.innerHTML = `
@@ -27,6 +32,7 @@ class ShoppingCart {
       <button>Order Now!</button>
     `;
     cartEl.className = "cart";
+    this.totalOutput = cartEl.querySelector("h2");
     // I'll just return cart el here in the render method so that wherever we create that shopping cart, we can append it to the DOM.
     return cartEl;
   }
@@ -41,6 +47,7 @@ class ProductItem {
   addToCart() {
     console.log("clicked");
     console.log(this.product);
+    App.addProductToCart(this.product);
   }
 
   render() {
@@ -102,8 +109,8 @@ class Shop {
   render() {
     const renderHook = document.getElementById("app");
 
-    const cart = new ShoppingCart();
-    const cartEl = cart.render();
+    this.cart = new ShoppingCart();
+    const cartEl = this.cart.render();
     const productList = new ProductList();
     const prodListEl = productList.render();
     renderHook.append(cartEl);
@@ -111,5 +118,18 @@ class Shop {
   }
 }
 
-const shop = new Shop();
-shop.render();
+// we kind of use this app class and the static method as a proxy because and that's the advantage and the whole idea of using these static methods, since we always operate on the class and not on instances, we don't work on different objects which we would do if we would not use static and instead create different apps in different places of the app but instead the app I'm using here to init my app, this class is the same I can now call from inside product item. So here in add to cart, we can get rid of that instead just call app add product to cart, this product, referring to the product stored in this product item. So here I am utilizing static methods and the fact that we're not working on objects based on classes but on the class itself to share some data, share the cart instance for example.
+class App {
+  static init() {
+    const shop = new Shop();
+    shop.render();
+    // if you use 'this' in a static method, it always refers to the class itself, doesn't try to refer to an object based on the class, so it adds a static property implicitly and accesses this static property and implicitly therefore but still this makes it clear hat we expect to have that static property, not needed technically but I think it improves readability.
+    this.cart = shop.cart;
+  }
+
+  static addProductToCart(product) {
+    this.cart.addProduct(product);
+  }
+}
+
+App.init();
