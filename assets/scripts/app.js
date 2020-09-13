@@ -25,11 +25,18 @@ class ElementAttribute {
 }
 
 class Component {
-  constructor(renderHookId) {
+  constructor(renderHookId, shouldRender = true) {
     // if your subclass, so the class which extends another class, does not have a constructor, the constructor of the parent class is automatically called.
     console.log("called");
     this.hookId = renderHookId;
+    // if thereafter in the parent class, we call this render here, it will not refer to this render method there but instead it will do this in the subclass and this can be counter intuitive but there is one simple rule and it's a rule you already learned actually. Always remember that this refers to what called the method and for the constructor, that basically is always the object you are creating. That can get bit strange because in the end you're creating an object by calling new, right, here new product item but in the end what the new keyword does is it make sure that a new object is created and that this inside of the constructor is set to that object, so that's a little bit of magic the new keyword does for you, that's something you can memorize, inside of a constructor, this will refer to the object that is being created, that's what new does for you so to say. And therefore this always refers to the object which is being created and the object which is being created is always product list or product item or shopping cart, it's not the base class.
+    if (shouldRender) {
+      this.render();
+    }
   }
+
+  render() {}
+
   createRootElement(tag, cssClasses, attributes) {
     const rootElement = document.createElement(tag);
     if (cssClasses) {
@@ -92,9 +99,10 @@ class ShoppingCart extends Component {
 
 class ProductItem extends Component {
   constructor(product, renderHookId) {
-    super(renderHookId);
+    super(renderHookId, false);
     // just to re-iterate what we learned: "this.product = product" adds a new 'product' property to the eventually created objects.
     this.product = product;
+    this.render();
   }
 
   addToCart() {
@@ -126,44 +134,59 @@ class ProductItem extends Component {
 
 class ProductList extends Component {
   // what will happen here is that when we create an object based on this class, a product's property will be added automatically and the default value will be that array.
-  products = [
-    new Product(
-      "A Pillow",
-      "https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg",
-      "A soft pillow!",
-      19.99
-    ),
-    new Product(
-      "A Carpet",
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg",
-      "A carpet which you might like - or not.",
-      89.99
-    ),
-  ];
+  products = [];
 
   // the products field is magically added as a property during the construction process anyways.
   constructor(renderHookId) {
     super(renderHookId);
+    // I simulate that in this method, I then have access to these products before I didn't. So here I want to call this fetch products inside of the constructor. Now of course, render will also be called but here we simply know our render method depends on something where we don't know yet if it's there.
+    this.fetchProducts();
+  }
+
+  fetchProducts() {
+    // which means we create this instance property during the constructor.
+    this.products = [
+      new Product(
+        "A Pillow",
+        "https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg",
+        "A soft pillow!",
+        19.99
+      ),
+      new Product(
+        "A Carpet",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg",
+        "A carpet which you might like - or not.",
+        89.99
+      ),
+    ];
+    this.renderProducts();
+  }
+
+  renderProducts() {
+    for (const prod of this.products) {
+      new ProductItem(prod, "prod-list");
+    }
   }
 
   render() {
     this.createRootElement("ul", "product-list", [
       new ElementAttribute("id", "prod-list"),
     ]);
-    for (const prod of this.products) {
-      const productItem = new ProductItem(prod, "prod-list");
-      // as you learned, render will return this new object. So now we can append product element again because prod el is such a DOM object created by render
-      productItem.render();
+    if (this.products && this.products.length > 0) {
+      this.renderProducts();
     }
   }
 }
 
-class Shop {
+class Shop extends Component {
+  // you can definitely also just call this render here and not extend component here because we're not interested in any other feature from the base class, so extending it might be a bit unnecessary.
+  constructor() {
+    super();
+  }
+
   render() {
     this.cart = new ShoppingCart("app");
-    this.cart.render();
-    const productList = new ProductList('app');
-    productList.render();
+    new ProductList("app");
   }
 }
 
@@ -175,8 +198,6 @@ class App {
   // static methods and static properties are always a good idea if you want to share some functionality across different parts of your application or like in this case, if you want to share some data or use this as kind of a communication interface you could say.
   static init() {
     const shop = new Shop();
-    shop.render();
-    // if you use 'this' in a static method, it always refers to the class itself, doesn't try to refer to an object based on the class, so it adds a static property implicitly and accesses this static property and implicitly therefore but still this makes it clear hat we expect to have that static property, not needed technically but I think it improves readability.
     this.cart = shop.cart;
   }
 
