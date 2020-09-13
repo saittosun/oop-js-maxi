@@ -90,8 +90,9 @@ class ShoppingCart extends Component {
   }
 }
 
-class ProductItem {
-  constructor(product) {
+class ProductItem extends Component {
+  constructor(product, renderHookId) {
+    super(renderHookId);
     // just to re-iterate what we learned: "this.product = product" adds a new 'product' property to the eventually created objects.
     this.product = product;
   }
@@ -103,8 +104,7 @@ class ProductItem {
   }
 
   render() {
-    const prodEl = document.createElement("li");
-    prodEl.className = "product-item";
+    const prodEl = this.createRootElement("li", "product-item");
     prodEl.innerHTML = `
       <div>
         <img src="${this.product.imageUrl}" alt="${this.product.title}">
@@ -120,11 +120,11 @@ class ProductItem {
     const addCartButton = prodEl.querySelector("button");
     // We execute add to cart whenever the button is clicked, we assign the add to cart method of this object, of this class to this button or to this event listener. Now as you learned in that object module, Javascript then binds this to the source of that event, so to that button and not to your your class or the object where this effectively runs on later. The solution or one possible solution is to use bind here and bind this, so that means that we bind this inside of add to cart, so what this refers to instead of this method to the same thing this refers to in this place here and this here in this code snippet refers to the entire object, so to this product item object assuming that we call render on an instance of this object,
     addCartButton.addEventListener("click", this.addToCart.bind(this));
-    return prodEl;
+    // return prodEl; // buna ihtiyacimiz yok
   }
 }
 
-class ProductList {
+class ProductList extends Component {
   // what will happen here is that when we create an object based on this class, a product's property will be added automatically and the default value will be that array.
   products = [
     new Product(
@@ -142,30 +142,28 @@ class ProductList {
   ];
 
   // the products field is magically added as a property during the construction process anyways.
-  constructor() {}
+  constructor(renderHookId) {
+    super(renderHookId);
+  }
 
   render() {
-    const prodList = document.createElement("ul");
-    prodList.className = "product-list";
+    this.createRootElement("ul", "product-list", [
+      new ElementAttribute("id", "prod-list"),
+    ]);
     for (const prod of this.products) {
-      const productItem = new ProductItem(prod);
+      const productItem = new ProductItem(prod, "prod-list");
       // as you learned, render will return this new object. So now we can append product element again because prod el is such a DOM object created by render
-      const prodEl = productItem.render();
-      prodList.append(prodEl);
+      productItem.render();
     }
-    return prodList;
   }
 }
 
 class Shop {
   render() {
-    const renderHook = document.getElementById("app");
-
-    this.cart = new ShoppingCart('app');
+    this.cart = new ShoppingCart("app");
     this.cart.render();
-    const productList = new ProductList();
-    const prodListEl = productList.render();
-    renderHook.append(prodListEl);
+    const productList = new ProductList('app');
+    productList.render();
   }
 }
 
