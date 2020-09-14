@@ -74,7 +74,12 @@ class ShoppingCart extends Component {
 
   // Now if you add a constructor, maybe below the getters and setters, to your subclass, so to the class which is extending, then this constructor will be called and the parent class constructor will not be called, so also not what I want. What I in the end want here is I want to call this constructor and from there, call the parent constructor, so the constructor of the parent class which is the class we're extending from and we can do this with another special keyword, the super keyword, execute it like a function and this will call the constructor in the parent class and you want to do this in your own constructors if you're a parent class also has a constructor that should be executed, which typically is the case if it has a constructor. Now one important note about super - when you add super to your constructor, make sure you're not relying on any field in that super constructor method, that will become important later and also if you plan on adding properties in your constructor with this something equals something else, you have to do that after you called super and you always have to call super, so the constructor of your parent class, of your base class first before you start using this inside of your subclass constructor.
   constructor(renderHookId) {
-    super(renderHookId);
+    super(renderHookId, false);
+    this.orderProducts = () => {
+      console.log("ordering...");
+      console.log(this.items);
+    };
+    this.render();
   }
 
   addProduct(product) {
@@ -84,11 +89,6 @@ class ShoppingCart extends Component {
     this.cartItems = updatedItems;
   }
 
-  orderProducts() {
-    console.log("ordering...");
-    console.log(this.items);
-  }
-
   render() {
     const cartEl = this.createRootElement("section", "cart");
     cartEl.innerHTML = `
@@ -96,7 +96,8 @@ class ShoppingCart extends Component {
       <button>Order Now!</button>
     `;
     const orderButton = cartEl.querySelector("button");
-    orderButton.addEventListener("click", () => this.orderProducts());
+    // orderButton.addEventListener("click", () => this.orderProducts());
+    orderButton.addEventListener("click", this.orderProducts);
     // cartEl.className = "cart";// bunu da niye command yapmadim ben yahu!!
     this.totalOutput = cartEl.querySelector("h2");
     // I'll just return cart el here in the render method so that wherever we create that shopping cart, we can append it to the DOM.
