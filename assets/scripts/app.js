@@ -142,18 +142,20 @@ class ProductItem extends Component {
 
 class ProductList extends Component {
   // what will happen here is that when we create an object based on this class, a product's property will be added automatically and the default value will be that array.
-  products = [];
+  //  this is such a new feature that my IDE doesn't even support it, it will work though despite my IDE complaining though because normally indeed, that would be an invalid character, you can't add anything but dollar signs and underscores to your variable or property names. Well the hash symbol is a new exception with this specific meaning inside of a class or inside of an object where it then turns this or it sets this to a private property. You then also have to use the hash symbol when you access it,
+  #products = [];
 
   // the products field is magically added as a property during the construction process anyways.
   constructor(renderHookId) {
-    super(renderHookId);
+    super(renderHookId, false);
+    this.render();
     // I simulate that in this method, I then have access to these products before I didn't. So here I want to call this fetch products inside of the constructor. Now of course, render will also be called but here we simply know our render method depends on something where we don't know yet if it's there.
     this.fetchProducts();
   }
 
   fetchProducts() {
     // which means we create this instance property during the constructor.
-    this.products = [
+    this.#products = [
       new Product(
         "A Pillow",
         "https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg",
@@ -171,7 +173,7 @@ class ProductList extends Component {
   }
 
   renderProducts() {
-    for (const prod of this.products) {
+    for (const prod of this.#products) {
       new ProductItem(prod, "prod-list");
     }
   }
@@ -180,7 +182,7 @@ class ProductList extends Component {
     this.createRootElement("ul", "product-list", [
       new ElementAttribute("id", "prod-list"),
     ]);
-    if (this.products && this.products.length > 0) {
+    if (this.#products && this.#products.length > 0) {
       this.renderProducts();
     }
   }
@@ -195,6 +197,7 @@ class Shop extends Component {
   render() {
     this.cart = new ShoppingCart("app");
     new ProductList("app");
+    // console.log(list.#products);
   }
 }
 
